@@ -4,33 +4,41 @@ import moviesRouter from './api/movies';
 import bodyParser from 'body-parser';
 import './db';
 import {loadUsers} from './seedData';
-import usersRouter from './api/users';
 import genresRouter from './api/genres';
+import session from 'express-session';
+import authenticate from './authenticate';
+import usersRouter from './api/users';
+
 
 if (process.env.SEED_DB) {
-    loadUsers();
-  }
-
+  loadUsers();
+}
 dotenv.config();
 
-const errHandler = (err, req, res, next) => {
-    /* if the error in development then send stack trace to display whole error,
-    if it's in production then just send error message  */
-    if(process.env.NODE_ENV === 'production') {
-      return res.status(500).send(`Something went wrong!`);
-    }
-    res.status(500).send(`Hey!! You caught the error 👍👍, ${err.stack} `);
-  };
+const errHandler = (err, req, res) => {
+  /* if the error in development then send stack trace to display whole error,
+  if it's in production then just send error message  */
+  if(process.env.NODE_ENV === 'production') {
+    return res.status(500).send(`Something went wrong!`);
+  }
+  res.status(500).send(`Hey!! You caught the error 👍👍, ${err.stack} `);
+};
 
 const app = express();
 
 const port = process.env.PORT;
 
+app.use(session({
+  secret: 'ilikecake',
+  resave: true,
+  saveUninitialized: true
+}));
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use('/api/movies', moviesRouter);
+//update /api/Movie route
+app.use('/api/movies', authenticate, moviesRouter);
 app.use('/api/genres', genresRouter);
 app.use('/api/users', usersRouter);
 
