@@ -3,15 +3,15 @@ import express from 'express';
 import moviesRouter from './api/movies';
 import bodyParser from 'body-parser';
 import './db';
-import {loadUsers} from './seedData';
 import genresRouter from './api/genres';
 import session from 'express-session';
 import passport from './authenticate';
 import usersRouter from './api/users';
-
+import {loadUsers, loadMovies} from './seedData';
 
 if (process.env.SEED_DB) {
   loadUsers();
+  loadMovies();
 }
 dotenv.config();
 
