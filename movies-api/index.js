@@ -6,7 +6,7 @@ import './db';
 import {loadUsers} from './seedData';
 import genresRouter from './api/genres';
 import session from 'express-session';
-import authenticate from './authenticate';
+import passport from './authenticate';
 import usersRouter from './api/users';
 
 
@@ -34,11 +34,18 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.use(passport.initialize());
+
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 //update /api/Movie route
-app.use('/api/movies', authenticate, moviesRouter);
+
+app.use(
+  '/api/movies', 
+  passport.authenticate('jwt', {session: false}), moviesRouter
+  );
+
 app.use('/api/genres', genresRouter);
 app.use('/api/users', usersRouter);
 
